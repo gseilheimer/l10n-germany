@@ -90,37 +90,12 @@ class VatStatement(models.Model):
             ('company_id', '=', self.company_id.id),
             ('invoice_id', '!=', False),
             ('l10n_de_tax_statement_id', '=', False),
+            ('date', '<', self.from_date),
         ]
-        if self.is_invoice_basis and not self.unreported_move_from_date:
+        if self.unreported_move_from_date:
             domain += [
-                '|',
-                '&',
-                ('l10n_de_date_invoice', '=', False),
-                ('date', '<', self.from_date),
-                '&',
-                ('l10n_de_date_invoice', '!=', False),
-                ('l10n_de_date_invoice', '<', self.from_date),
-            ]
-        elif self.is_invoice_basis and self.unreported_move_from_date:
-            domain += [
-                '|',
-                '&', '&',
-                ('l10n_de_date_invoice', '=', False),
-                ('date', '<', self.from_date),
                 ('date', '>=', self.unreported_move_from_date),
-                '&', '&',
-                ('l10n_de_date_invoice', '!=', False),
-                ('l10n_de_date_invoice', '<', self.from_date),
-                ('l10n_de_date_invoice', '>=', self.unreported_move_from_date),
             ]
-        else:
-            domain += [
-                ('date', '<', self.from_date),
-            ]
-            if self.unreported_move_from_date:
-                domain += [
-                    ('date', '>=', self.unreported_move_from_date),
-                ]
         return domain
 
     unreported_move_ids = fields.One2many(
@@ -129,21 +104,6 @@ class VatStatement(models.Model):
         compute='_compute_unreported_move_ids'
     )
     unreported_move_from_date = fields.Date()
-
-    @api.multi
-    def _compute_is_invoice_basis(self):
-        self.is_invoice_basis = False
-        has_invoice_basis = self.env['ir.model.fields'].sudo().search_count([
-            ('model', '=', 'res.company'),
-            ('name', '=', 'l10n_de_tax_invoice_basis')
-        ])
-        if has_invoice_basis:
-            self.is_invoice_basis = self.company_id.l10n_de_tax_invoice_basis
-
-    is_invoice_basis = fields.Boolean(
-        string='DE Tax Invoice Basis',
-        compute='_compute_is_invoice_basis',
-    )
 
     @api.multi
     @api.depends('tax_total')
@@ -552,7 +512,7 @@ class VatStatement(models.Model):
     def statement_update(self):
         self.ensure_one()
 
-        if self.state == 'posted':
+        if self.state in ['posted', 'final']:
             raise UserError(
                 _('You cannot modify a posted statement!'))
 
@@ -583,7 +543,7 @@ class VatStatement(models.Model):
             'target_move': self.target_move,
             'company_id': self.company_id.id,
             'skip_invoice_basis_domain': True,
-            'is_invoice_basis': self.is_invoice_basis,
+#            'is_invoice_basis': self.is_invoice_basis,
             'unreported_move_from_date': self.unreported_move_from_date
         }
         taxes = self.env['account.tax'].with_context(ctx)
@@ -652,24 +612,9 @@ class VatStatement(models.Model):
         domain = [
             ('company_id', '=', self.company_id.id),
             ('l10n_de_tax_statement_id', '=', False),
+            ('date', '<=', self.to_date),
+            ('date', '>=', self.from_date),
         ]
-        if self.is_invoice_basis:
-            domain += [
-                '|',
-                '&', '&',
-                ('l10n_de_date_invoice', '=', False),
-                ('date', '<=', self.to_date),
-                ('date', '>=', self.from_date),
-                '&', '&',
-                ('l10n_de_date_invoice', '!=', False),
-                ('l10n_de_date_invoice', '<=', self.to_date),
-                ('l10n_de_date_invoice', '>=', self.from_date),
-            ]
-        else:
-            domain += [
-                ('date', '<=', self.to_date),
-                ('date', '>=', self.from_date),
-            ]
         move_line_ids = self.env['account.move.line'].search(domain)
         updated_move_ids = move_line_ids.mapped('move_id')
         updated_move_ids.write({
@@ -720,62 +665,6 @@ class VatStatement(models.Model):
             if statement.state == 'final':
                 raise UserError(
                     _('You cannot delete a statement set as final!'))
-        super(VatStatement, self).unlink()
-
-    def _compute_lines(self, lines):
-        ctx = {
-            'from_date': self.from_date,
-            'to_date': self.to_date,
-            'target_move': self.target_move,
-            'company_id': self.company_id.id,
-        }
-        tags_map = self._get_tags_map()
-        domain = self._get_taxes_domain()
-        taxes = self.env['account.tax'].with_context(ctx).search(domain)
-        for tax in taxes:
-            for tag in tax.tag_ids:
-                tag_map = tags_map.get(tag.id)
-                if tag_map:
-                    column = tag_map[1]
-                    code = tag_map[0]
-                    if column == 'base':
-                        lines[code][column] += tax.base_balance
-                    else:
-                        lines[code][column] += tax.balance
-
-    @api.multi
-    def post(self):
-        self.write({
-            'state': 'posted',
-            'date_posted': fields.Datetime.now()
-        })
-
-    @api.multi
-    def reset(self):
-        self.write({
-            'state': 'draft',
-            'date_posted': None
-        })
-
-    @api.multi
-    def write(self, values):
-        for statement in self:
-            if 'state' not in values or values['state'] != 'draft':
-                if statement.state == 'posted':
-                    for val in values:
-                        if val != 'state':
-                            raise UserError(
-                                _('You cannot modify a posted statement! '
-                                  'Reset the statement to draft first.'))
-        return super(VatStatement, self).write(values)
-
-    @api.multi
-    def unlink(self):
-        for statement in self:
-            if statement.state == 'posted':
-                raise UserError(
-                    _('You cannot delete a posted statement! '
-                      'Reset the statement to draft first.'))
         super(VatStatement, self).unlink()
 
     @api.depends('line_ids.tax')
