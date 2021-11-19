@@ -126,14 +126,17 @@ class VatStatementLine(models.Model):
         domain_lines_ids = []
         tags_map = self.statement_id._get_tags_map()
         for line in all_amls:
-            for tag in line.tag_ids:
+            for tag in line.tax_tag_ids:
                 tag_map = tags_map.get(tag.id, ("", ""))
                 code, column = tag_map
                 code = self.statement_id._strip_sign_in_tag_code(code)
                 line_code = self.statement_id.map_tax_code_line_code(code)
                 if line_code and line_code == self.code:
-                    if (tax_or_base == "tax" and column == "tax") or (
-                        tax_or_base == "base" and column == "base"
+                    if (
+                        (tax_or_base == "tax" and column == "tax")
+                        or (tax_or_base == "base" and column == "base")
+                        or (tax_or_base == "base" and not column)
+                        or (tax_or_base == "tax" and not column)
                     ):
                         domain_lines_ids += [line.id]
         return [("id", "in", domain_lines_ids)]
