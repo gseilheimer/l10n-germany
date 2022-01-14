@@ -161,6 +161,7 @@ def _tax_statement_dict_2019():
         "41": {
             "code": "41",
             "base": 0.0,
+            "tax": 0.0,
             "name": _(
                 "Übrige n. steuerb. Umsätze, Leistungsort " "ist nicht im Inland (45)"
             ),
@@ -335,40 +336,27 @@ def _finalize_lines_2019(lines):
     _28b = lines["28"]["tax"]
     _62b = lines["62"]["tax"]
     _63b = lines["63"]["tax"]
+    # calculate reverse of lines 48 - line 50 base
+    lines["48"]["base"] = lines["48"]["base"] * -1
+    lines["50"]["base"] = lines["50"]["base"] * -1
     # calculate lines 48 - 50
-    lines["48"]["tax"] = lines["48"]["base"] * 0.19
     _48b = lines["48"]["tax"]
-    lines["49"]["tax"] = lines["48"]["base"] * 0.19
     _49b = lines["49"]["tax"]
-    lines["50"]["tax"] = lines["48"]["base"] * 0.19
+    lines["50"]["tax"] = lines["50"]["base"] * 0.19
     _50b = lines["50"]["tax"]
     # calculate lines 26, 27, 28, 33, 34
-    lines["28"]["tax"] = lines["28"]["base"] * 0.19
     _28b = lines["28"]["tax"]
     lines["30"]["tax"] = lines["30"]["base"] * 0.19
     _30b = lines["30"]["tax"]
 
     # calculate reverse of lines 32 - line 36 base
     lines["32"]["base"] = lines["32"]["base"] * -1
-    lines["33"]["base"] = lines["33"]["base"] * -1
-    lines["34"]["base"] = lines["34"]["base"] * -1
-    lines["35"]["tax"] = lines["35"]["base"] * 0.19
-    _48b = lines["35"]["tax"]
-    lines["36"]["tax"] = lines["36"]["base"] * 0.19
-    _49b = lines["36"]["tax"]
     # calculate reverse of lines 32 - line 36 tax
-    lines["33"]["tax"] = lines["33"]["tax"] * -1
     _33b = lines["33"]["tax"]
-    lines["34"]["tax"] = lines["34"]["tax"] * -1
     _34b = lines["34"]["tax"]
     lines["35"]["tax"] = lines["35"]["tax"] * -1
     _35b = lines["35"]["tax"]
-    lines["36"]["tax"] = lines["36"]["tax"] * -1
     _36b = lines["36"]["tax"]
-    # calculate reverse of lines 48 - line 50 base
-    lines["48"]["base"] = lines["48"]["base"] * -1
-    lines["49"]["base"] = lines["49"]["base"] * -1
-    lines["50"]["base"] = lines["50"]["base"] * -1
     # calculate reverse of line 53 - line 59
     lines["53"]["tax"] = lines["53"]["tax"] * -1
     _53b = lines["53"]["tax"]
@@ -385,7 +373,6 @@ def _finalize_lines_2019(lines):
     lines["59"]["tax"] = lines["59"]["tax"] * -1
     _59b = lines["59"]["tax"]
     # calculate line 51
-    lines["51"]["tax"] = lines["51"]["tax"] * 1
     _51b = (
         lines["51"]["tax"]
         + _26b
@@ -401,10 +388,8 @@ def _finalize_lines_2019(lines):
         + _50b
     )
     # calculate line 60
-    lines["60"]["tax"] = lines["60"]["tax"] * 1
     _60b = lines["60"]["tax"] + _51b - _53b - _54b - _55b - _56b - _57b - _58b - _59b
     # calculate line 64
-    lines["64"]["tax"] = lines["64"]["tax"] * 1
     _64b = lines["64"]["tax"] + _60b + _62b + _63b
     # update lines 51, 60, 64
     lines["64"].update({"tax": _64b})
@@ -463,6 +448,7 @@ def _tax_display_2019():
         "34",
         "35",
         "36",
+        "41",
         "48",
         "49",
         "50",
