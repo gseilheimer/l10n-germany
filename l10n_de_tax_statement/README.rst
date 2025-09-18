@@ -1,7 +1,3 @@
-.. image:: https://odoo-community.org/readme-banner-image
-   :target: https://odoo-community.org/get-involved?utm_source=readme
-   :alt: Odoo Community Association
-
 ====================
 German VAT Statement
 ====================
@@ -17,17 +13,17 @@ German VAT Statement
 .. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
     :target: https://odoo-community.org/page/development-status
     :alt: Beta
-.. |badge2| image:: https://img.shields.io/badge/license-AGPL--3-blue.png
+.. |badge2| image:: https://img.shields.io/badge/licence-AGPL--3-blue.png
     :target: http://www.gnu.org/licenses/agpl-3.0-standalone.html
     :alt: License: AGPL-3
 .. |badge3| image:: https://img.shields.io/badge/github-OCA%2Fl10n--germany-lightgray.png?logo=github
-    :target: https://github.com/OCA/l10n-germany/tree/17.0/l10n_de_tax_statement
+    :target: https://github.com/OCA/l10n-germany/tree/18.0/l10n_de_tax_statement
     :alt: OCA/l10n-germany
 .. |badge4| image:: https://img.shields.io/badge/weblate-Translate%20me-F47D42.png
-    :target: https://translation.odoo-community.org/projects/l10n-germany-17-0/l10n-germany-17-0-l10n_de_tax_statement
+    :target: https://translation.odoo-community.org/projects/l10n-germany-18-0/l10n-germany-18-0-l10n_de_tax_statement
     :alt: Translate me on Weblate
 .. |badge5| image:: https://img.shields.io/badge/runboat-Try%20me-875A7B.png
-    :target: https://runboat.odoo-community.org/builds?repo=OCA/l10n-germany&target_branch=17.0
+    :target: https://runboat.odoo-community.org/builds?repo=OCA/l10n-germany&target_branch=18.0
     :alt: Try me on Runboat
 
 |badge1| |badge2| |badge3| |badge4| |badge5|
@@ -121,18 +117,18 @@ Printing a PDF report:
 Known issues / Roadmap
 ======================
 
-- Add checks to avoid errors in the report, e.g. no VAT code, tax-code
-  not matching fiscal position, etc..
-- Re-formatting of tax base values from float format to integer.
-  Currently in the official tax forms we need to enter integer format
-  for some of the base tax values (f.e. instead of 250,52 € -> 251 €).
-  The non writable tax calculation is based on the integer format. We
-  propose to do that change manually in the
-  `www.elster.de <http://www.elster.de>`__ tax declaration forms. It
-  should be easy to adopt.
-- Report in .xml format in order to import the vat statement on
-  `www.elster.de <http://www.elster.de>`__ portal in order to avoid
-  manual transmission of the values.
+-  Add checks to avoid errors in the report, e.g. no VAT code, tax-code
+   not matching fiscal position, etc..
+-  Re-formatting of tax base values from float format to integer.
+   Currently in the official tax forms we need to enter integer format
+   for some of the base tax values (f.e. instead of 250,52 € -> 251 €).
+   The non writable tax calculation is based on the integer format. We
+   propose to do that change manually in the
+   `www.elster.de <http://www.elster.de>`__ tax declaration forms. It
+   should be easy to adopt.
+-  Report in .xml format in order to import the vat statement on
+   `www.elster.de <http://www.elster.de>`__ portal in order to avoid
+   manual transmission of the values.
 
 Bug Tracker
 ===========
@@ -140,7 +136,7 @@ Bug Tracker
 Bugs are tracked on `GitHub Issues <https://github.com/OCA/l10n-germany/issues>`_.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
-`feedback <https://github.com/OCA/l10n-germany/issues/new?body=module:%20l10n_de_tax_statement%0Aversion:%2017.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
+`feedback <https://github.com/OCA/l10n-germany/issues/new?body=module:%20l10n_de_tax_statement%0Aversion:%2018.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
 
 Do not contact contributors directly about support or help with technical issues.
 
@@ -155,10 +151,10 @@ Authors
 Contributors
 ------------
 
-- Andrea Stirpe <a.stirpe@onestein.nl>
-- Thorsten Vocks <thorsten.vocks@openbig.org>
-- Helly kapatel <helly.kapatel@initos.com>
-- Mark Schuit mark@gig.solutions
+-  Andrea Stirpe <a.stirpe@onestein.nl>
+-  Thorsten Vocks <thorsten.vocks@openbig.org>
+-  Helly kapatel <helly.kapatel@initos.com>
+-  Mark Schuit mark@gig.solutions
 
 Maintainers
 -----------
@@ -173,6 +169,6 @@ OCA, or the Odoo Community Association, is a nonprofit organization whose
 mission is to support the collaborative development of Odoo features and
 promote its widespread use.
 
-This module is part of the `OCA/l10n-germany <https://github.com/OCA/l10n-germany/tree/17.0/l10n_de_tax_statement>`_ project on GitHub.
+This module is part of the `OCA/l10n-germany <https://github.com/OCA/l10n-germany/tree/18.0/l10n_de_tax_statement>`_ project on GitHub.
 
 You are welcome to contribute. To learn how please visit https://odoo-community.org/page/Contribute.
