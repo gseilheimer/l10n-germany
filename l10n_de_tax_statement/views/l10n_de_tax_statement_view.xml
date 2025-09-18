@@ -91,8 +91,8 @@
                                     colspan="2"
                                     class="text-info"
                                 >Press the <span class="text-uppercase"><i
-                                            class="fa fa-repeat"
-                                        />
+                                    class="fa fa-repeat"
+                                />
                                      Update</span> button in order to recompute the statement lines!</div>
                             </group>
                             <field name="line_ids">
@@ -149,8 +149,7 @@
                                 </tree>
                             </field>
                             <group>
-                                <group>
-                                </group>
+                                <group />
                                 <group>
                                     <label for="tax_total" />
                                     <field name="tax_total" nolabel="1" />
@@ -173,8 +172,7 @@
                                         readonly="state in ('posted', 'final')"
                                     />
                                 </group>
-                                <group>
-                                </group>
+                                <group />
                             </group>
                             <field name="unreported_move_ids">
                                 <tree
