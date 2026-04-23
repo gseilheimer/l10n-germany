@@ -398,20 +398,6 @@ class TestVatStatement(BaseCommon):
         self.assertEqual(len(self.statement_1.line_ids.ids), 45)
         self.assertEqual(self.statement_1.tax_total, 122.5)
 
-    def test_17_2021_version_is_invoice_basis_false(self):
-        self.assertEqual(len(self.statement_1.line_ids.ids), 0)
-        self.assertEqual(self.statement_1.tax_total, 0.0)
-
-        self._create_test_invoice(additional=True)
-        self.invoice_1.action_post()
-        self.statement_1.version = "2021"
-        self.statement_1.company_id.l10n_de_tax_invoice_basis = False
-        self.statement_1.statement_update()
-        self.statement_1.post()
-
-        self.assertEqual(len(self.statement_1.line_ids.ids), 45)
-        self.assertEqual(self.statement_1.tax_total, 122.5)
-
     def test_18_2021_version_refund(self):
         self.assertEqual(len(self.statement_1.line_ids.ids), 0)
         self.assertEqual(self.statement_1.tax_total, 0.0)
@@ -419,9 +405,23 @@ class TestVatStatement(BaseCommon):
         self._create_test_invoice(additional=True, refund=True)
         self.invoice_1.action_post()
         self.statement_1.version = "2021"
-        self.statement_1.company_id.l10n_de_tax_invoice_basis = False
         self.statement_1.statement_update()
         self.statement_1.post()
 
         self.assertEqual(len(self.statement_1.line_ids.ids), 45)
         self.assertEqual(self.statement_1.tax_total, -22.5)
+
+    def test_bill_dates(self):
+        bill_form = self._create_move_form("in_invoice", [(100.0, self.tax_vst_19)])
+        bill_form.invoice_date = "2026-04-12"
+        bill_form.date = "2026-04-01"
+        bill = bill_form.save()
+        bill.action_post()
+        self.statement_1.from_date = "2026-04-12"
+        self.statement_1.to_date = "2026-04-12"
+        self.statement_1.statement_update()
+        self.assertFalse(self.statement_1.tax_total)
+        self.statement_1.from_date = "2026-04-01"
+        self.statement_1.to_date = "2026-04-01"
+        self.statement_1.statement_update()
+        self.assertEqual(self.statement_1.tax_total, -19)

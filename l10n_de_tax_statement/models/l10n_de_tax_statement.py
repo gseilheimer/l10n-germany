@@ -87,7 +87,6 @@ class VatStatement(models.Model):
 
     @api.depends(
         "unreported_move_from_date",
-        "is_invoice_basis",
         "company_id",
         "from_date",
         "to_date",
@@ -112,34 +111,9 @@ class VatStatement(models.Model):
     def _get_unreported_move_domain(self):
         self.ensure_one()
         domain = self._init_move_line_domain()
-        if self.is_invoice_basis and not self.unreported_move_from_date:
-            domain += [
-                "|",
-                "&",
-                ("move_id.invoice_date", "=", False),
-                ("date", "<", self.from_date),
-                "&",
-                ("move_id.invoice_date", "!=", False),
-                ("move_id.invoice_date", "<", self.from_date),
-            ]
-        elif self.is_invoice_basis and self.unreported_move_from_date:
-            domain += [
-                "|",
-                "&",
-                "&",
-                ("move_id.invoice_date", "=", False),
-                ("date", "<", self.from_date),
-                ("date", ">=", self.unreported_move_from_date),
-                "&",
-                "&",
-                ("move_id.invoice_date", "!=", False),
-                ("move_id.invoice_date", "<", self.from_date),
-                ("move_id.invoice_date", ">=", self.unreported_move_from_date),
-            ]
-        else:
-            domain += [("date", "<", self.from_date)]
-            if self.unreported_move_from_date:
-                domain += [("date", ">=", self.unreported_move_from_date)]
+        domain += [("date", "<", self.from_date)]
+        if self.unreported_move_from_date:
+            domain += [("date", ">=", self.unreported_move_from_date)]
         return domain
 
     unreported_move_ids = fields.One2many(
@@ -149,9 +123,6 @@ class VatStatement(models.Model):
     )
     unreported_move_from_date = fields.Date(
         compute="_compute_unreported_move_from_date", store=True, readonly=False
-    )
-    is_invoice_basis = fields.Boolean(
-        string="DE Tax Invoice Basis", related="company_id.l10n_de_tax_invoice_basis"
     )
 
     @api.depends("tax_total")
@@ -390,22 +361,7 @@ class VatStatement(models.Model):
 
     def _get_move_lines_domain(self):
         domain = self._init_move_line_domain()
-        if self.is_invoice_basis:
-            domain += [
-                "|",
-                "&",
-                "&",
-                ("move_id.invoice_date", "=", False),
-                ("date", "<=", self.to_date),
-                ("date", ">=", self.from_date),
-                "&",
-                "&",
-                ("move_id.invoice_date", "!=", False),
-                ("move_id.invoice_date", "<=", self.to_date),
-                ("move_id.invoice_date", ">=", self.from_date),
-            ]
-        else:
-            domain += [("date", "<=", self.to_date), ("date", ">=", self.from_date)]
+        domain += [("date", "<=", self.to_date), ("date", ">=", self.from_date)]
         return domain
 
     def reset(self):

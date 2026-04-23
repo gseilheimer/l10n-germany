@@ -16,7 +16,6 @@
         "data/paperformat.xml",
         "views/l10n_de_tax_statement_view.xml",
         "views/report_tax_statement.xml",
-        "views/res_config_settings.xml",
         "report/report_tax_statement.xml",
     ],
     "assets": {
