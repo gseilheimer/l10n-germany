@@ -7,7 +7,7 @@ import datetime
 
 from dateutil.relativedelta import relativedelta
 
-from odoo import Command, fields
+from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import Form, tagged
 from odoo.tools import mute_logger
@@ -68,38 +68,42 @@ class TestVatStatement(BaseCommon):
         cls.tax_6 = cls.env.ref(
             f"account.{cls.company.id}_tax_ust_7_13b_bau_ohne_vst_skr03"
         )
+        cls.tax_vst_19 = cls.env.ref(f"account.{cls.company.id}_tax_vst_19_skr03")
         cls.statement_1 = cls.env["l10n.de.tax.statement"].create(
             {"name": "Statement 1", "version": "2018"}
         )
-
-    def _create_test_invoice(self, additional=False, refund=False):
-        account_receivable = self.env["account.account"].create(
-            {
-                "account_type": "expense",
-                "code": "EXPTEST",
-                "name": "Test expense account",
-                "company_ids": [Command.link(self.company.id)],
-            }
+        cls.journal_sale = cls.env["account.journal"].search(
+            [("company_id", "=", cls.company.id), ("type", "=", "sale")], limit=1
         )
-        journal = self.env["account.journal"].create(
-            {
-                "name": "Journal 1",
-                "code": "Jou1",
-                "type": "sale",
-                "default_account_id": account_receivable.id,
-                "company_id": self.company.id,
-            }
+        cls.journal_purchase = cls.env["account.journal"].search(
+            [("company_id", "=", cls.company.id), ("type", "=", "purchase")], limit=1
         )
-        partner = self.env["res.partner"].create({"name": "Test partner"})
+        cls.partner = cls.env["res.partner"].create({"name": "Test partner"})
 
-        invoice_form = Form(
-            self.env["account.move"].with_context(
-                default_move_type="out_refund" if refund else "out_invoice",
+    @classmethod
+    def _create_move_form(cls, move_type, lines=None):
+        journal = "out" in move_type and cls.journal_sale or cls.journal_purchase
+        move_form = Form(
+            cls.env["account.move"].with_context(
+                default_move_type=move_type,
                 default_journal_id=journal.id,
             ),
         )
-        self.assertEqual(journal, invoice_form.journal_id)
-        invoice_form.partner_id = partner
+        move_form.partner_id = cls.partner
+        lines = lines or []
+        for price_unit, tax in lines:
+            with move_form.invoice_line_ids.new() as line:
+                line.name = "Test line"
+                line.quantity = 1.0
+                line.price_unit = price_unit
+                line.tax_ids.clear()
+                line.tax_ids.add(tax)
+        return move_form
+
+    def _create_test_invoice(self, additional=False, refund=False):
+        # "default_account_id": account_receivable.id,
+        invoice_form = self._create_move_form(refund and "out_refund" or "out_invoice")
+        self.assertEqual(self.journal_sale, invoice_form.journal_id)
         invoice_form.invoice_date = fields.Date.today()
         with invoice_form.invoice_line_ids.new() as line:
             line.name = "Test line"
@@ -140,7 +144,7 @@ class TestVatStatement(BaseCommon):
                 line.tax_ids.add(self.tax_6)
         self.invoice_1 = invoice_form.save()
         for line in self.invoice_1.invoice_line_ids:
-            self.assertEqual(account_receivable, line.account_id)
+            self.assertEqual(self.journal_sale.default_account_id, line.account_id)
         self.assertEqual(len(self.invoice_1.line_ids), 5 if not additional else 13)
 
     def test_01_onchange(self):
