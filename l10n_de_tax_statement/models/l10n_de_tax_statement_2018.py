@@ -8,6 +8,9 @@ _lt = LazyTranslate(__name__, default_lang="en_US")
 
 
 def _tax_statement_dict_2018():
+    # _lt() calls below are intentional: this is a module-level function
+    # with no `self`/`env` in scope, so `self.env._` is not available here.
+    # pylint: disable=prefer-env-translation
     return {
         "17": {"code": "17", "name": _lt("Anmeldung der Umsatzsteuer Vorauszahlung")},
         "18": {
@@ -35,7 +38,7 @@ def _tax_statement_dict_2018():
             "code": "22",
             "base": 0.0,
             "name": _lt(
-                "... neuer Fahrzeuge außerh. eines Unternehmens " "§ 2a UStG (49)"
+                "... neuer Fahrzeuge außerh. eines Unternehmens § 2a UStG (49)"
             ),
         },
         "23": {
@@ -172,18 +175,18 @@ def _tax_statement_dict_2018():
         "41": {
             "code": "41",
             "base": 0.0,
-            "name": _lt("Nicht steuerb. sonst. Leist. gem. " "§ 18b S. 1 Nr. 2 (21)"),
+            "name": _lt("Nicht steuerb. sonst. Leist. gem. § 18b S. 1 Nr. 2 (21)"),
         },
         "42": {
             "code": "42",
             "base": 0.0,
             "name": _lt(
-                "Übrige n. steuerb. Umsätze, Leistungsort " "ist nicht im Inland (45)"
+                "Übrige n. steuerb. Umsätze, Leistungsort ist nicht im Inland (45)"
             ),
         },
         "47": {
             "code": "47",
-            "name": _lt("Leistungsempfänger als Steuerschuldner " "(§ 13b UStG)"),
+            "name": _lt("Leistungsempfänger als Steuerschuldner (§ 13b UStG)"),
         },
         "48": {
             "code": "48",
@@ -255,9 +258,7 @@ def _tax_statement_dict_2018():
         "57": {
             "code": "57",
             "tax": 0.0,
-            "name": _lt(
-                "Entst. Einfuhrumsatzst. g. § 15 Abs. 1 S. 1 Nr. 2 " "UStG (62)"
-            ),
+            "name": _lt("Entst. Einfuhrumsatzst. g. § 15 Abs. 1 S. 1 Nr. 2 UStG (62)"),
         },
         "58": {
             "code": "58",
