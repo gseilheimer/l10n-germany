@@ -30,7 +30,9 @@ class TestVatStatement(BaseCommon):
                 "currency_id": cls.eur.id,
             }
         )
-        cls.env.company = cls.company
+        cls.env = cls.env(
+            context=dict(cls.env.context, allowed_company_ids=[cls.company.id])
+        )
         template = cls.env["account.chart.template"]
         template.try_loading("de_skr03", cls.company)
         cls.env["l10n.de.tax.statement"].search(
@@ -47,7 +49,7 @@ class TestVatStatement(BaseCommon):
             }
         )
         cls.tag_5 = cls.env["account.account.tag"].search(
-            [("name", "=", "+41"), ("country_id", "=", country_de.id)]
+            [("name", "=", "41"), ("country_id", "=", country_de.id)]
         )
         cls.tax_3.invoice_repartition_line_ids[0].tag_ids = cls.tag_5
         cls.tax_3.invoice_repartition_line_ids[1].tag_ids = cls.tag_5
@@ -60,7 +62,7 @@ class TestVatStatement(BaseCommon):
             }
         )
         cls.tag_6 = cls.env["account.account.tag"].search(
-            [("name", "=", "+62"), ("country_id", "=", country_de.id)]
+            [("name", "=", "62"), ("country_id", "=", country_de.id)]
         )
         cls.tax_4.invoice_repartition_line_ids[0].tag_ids = cls.tag_6
         cls.tax_5 = cls.env.ref(
